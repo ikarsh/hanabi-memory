@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/hanabi-memory/static/css/main.605d6c8a.css",
+    "main.js": "/hanabi-memory/static/js/main.ee31456a.js",
+    "static/js/453.239be743.chunk.js": "/hanabi-memory/static/js/453.239be743.chunk.js",
+    "index.html": "/hanabi-memory/index.html",
+    "main.605d6c8a.css.map": "/hanabi-memory/static/css/main.605d6c8a.css.map",
+    "main.ee31456a.js.map": "/hanabi-memory/static/js/main.ee31456a.js.map",
+    "453.239be743.chunk.js.map": "/hanabi-memory/static/js/453.239be743.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.605d6c8a.css",
+    "static/js/main.ee31456a.js"
+  ]
+}
