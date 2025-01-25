@@ -14,7 +14,9 @@ import {
   getCardAmount,
   setCardAmount,
   getSlideDirection,
-  setSlideDirection
+  setSlideDirection,
+  OLD_NAME,
+  NEW_NAME
 } from './types';
 import './App.css';
 
@@ -61,7 +63,7 @@ const SettingsButton: React.FC<{
                 onDirectionChange(direction === 'left' ? 'right' : 'left');
               }}
             >
-              {direction === 'left' ? '→' : '←'} Change Direction
+              {direction === 'left' ? NEW_NAME + ' → ' + OLD_NAME : OLD_NAME + ' ← ' + NEW_NAME}
             </button>
             <div style={{height: 1, background: '#ccc'}} />
             {[3,4,5].map(n => (
@@ -91,49 +93,64 @@ const ReactCard: React.FC<{
   isMarked: boolean,
   onMark: () => void,
   canDiscard: boolean,
-  onDiscard: () => void
-}> = ({ index, knownColor, knownNumber, numberPossibilities, colorPossibilities, isMarked, onMark, canDiscard, onDiscard }) => (
-  <div
-    className={`card ${isMarked ? 'marked' : ''} `}
-    style={{ backgroundColor: knownColor? COLOR_MAP[knownColor] : DEFAULT_COLOR }}
-    onClick={onMark}
-  >
-    <button 
-      className="discard-button" 
-      onClick={(e) => { 
-        if (canDiscard) {
-          e.stopPropagation();
-          onDiscard();
-        }
-      }}
+  onDiscard: () => void,
+  label?: React.ReactNode,
+
+ }> = ({ 
+  knownColor, 
+  knownNumber, 
+  numberPossibilities, 
+  colorPossibilities, 
+  isMarked,
+  onMark,
+  canDiscard, 
+  onDiscard,
+  label
+ }) => (
+  <div className="card-wrapper">
+    <div
+      className={`card ${isMarked ? 'marked' : ''}`}
+      style={{ backgroundColor: knownColor ? COLOR_MAP[knownColor] : DEFAULT_COLOR }}
+      onClick={onMark}
     >
-      ✕
-    </button>
-    <div className="card-content">
-      <div className="number">{knownNumber || '\u00A0'}</div>
-      <div className="grids">
-        <div className="grid" style={{visibility: knownNumber ? 'hidden' : 'visible'}}>
-          {CARD_NUMBERS.map((n, i) => (
-            <div key={n} className={numberPossibilities[i] === false ? 'impossible' : ''}>
-              {numberPossibilities[i] === false ? IMPOSSIBLE_SYMBOL : n}
-            </div>
-          ))}
-        </div>
-        <div className="grid" style={{visibility: knownColor ? 'hidden' : 'visible'}}>
-          {CARD_COLORS.map((c, i) => (
-            <div
-              key={c}
-              className={colorPossibilities[i] === false ? 'impossible' : ''}
-              style={{ backgroundColor: COLOR_MAP[c] }}
-            >
-              {colorPossibilities[i] === false ? IMPOSSIBLE_SYMBOL : null}
-            </div>
-          ))}
+      <button 
+        className="discard-button" 
+        onClick={(e) => { 
+          if (canDiscard) {
+            e.stopPropagation();
+            onDiscard();
+          }
+        }}
+      >
+        ✕
+      </button>
+      <div className="card-content">
+        <div className="number">{knownNumber || '\u00A0'}</div>
+        <div className="grids">
+          <div className="grid" style={{visibility: knownNumber ? 'hidden' : 'visible'}}>
+            {CARD_NUMBERS.map((n, i) => (
+              <div key={n} className={numberPossibilities[i] === false ? 'impossible' : ''}>
+                {numberPossibilities[i] === false ? IMPOSSIBLE_SYMBOL : n}
+              </div>
+            ))}
+          </div>
+          <div className="grid" style={{visibility: knownColor ? 'hidden' : 'visible'}}>
+            {CARD_COLORS.map((c, i) => (
+              <div
+                key={c}
+                className={colorPossibilities[i] === false ? 'impossible' : ''}
+                style={{ backgroundColor: COLOR_MAP[c] }}
+              >
+                {colorPossibilities[i] === false ? IMPOSSIBLE_SYMBOL : null}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
+    {label}
   </div>
-);
+ );
 
 function App() {
   const [state, dispatch] = useReducer<React.Reducer<CompleteGameState, GameAction>>(
@@ -236,6 +253,18 @@ function App() {
               onMark={() => dispatch({ type: 'MARK_CARD', payload: stateIndex })}
               onDiscard={() => onDiscard(stateIndex)}
               canDiscard={state.markedCards.size === 0}
+              label={
+                (stateIndex === 0 && (
+                <div className="label">
+                  {OLD_NAME}
+                </div>
+              )) || (
+                (stateIndex === getCardAmount() - 1 && (
+                  <div className="label">
+                    {NEW_NAME}
+                  </div>
+                )) || null
+              )}
             />
           );
         })}

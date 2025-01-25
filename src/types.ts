@@ -41,6 +41,8 @@ export const COLOR_MAP: Readonly<Record<CardColor, string>> = {
   white: '#ffffff',
   red: '#ff0000'
 };
+export const NEW_NAME = 'Newborn';
+export const OLD_NAME = 'Cliff';
 
 const STORAGE_KEY = 'hanabi-cards-amount';
 export const getCardAmount = () => Number(localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CARD_AMOUNT);
