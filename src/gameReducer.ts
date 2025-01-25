@@ -1,4 +1,4 @@
-import { Card, CardNumber, CardColor, CompleteGameState, GameAction, CARD_NUMBERS, CARD_COLORS, CARD_AMOUNT, SLIDE_DIRECTION, numberToIndex, colorToIndex } from './types';
+import { Card, CardNumber, CardColor, CompleteGameState, GameAction, CARD_NUMBERS, CARD_COLORS, SLIDE_DIRECTION, numberToIndex, colorToIndex, getCardAmount } from './types';
 
 const createEmptyCard = (): Card => ({
   id: Math.random().toString(36).substring(7),
@@ -8,7 +8,7 @@ const createEmptyCard = (): Card => ({
 
 
 export const initialState: CompleteGameState = {
-  history: [Array(CARD_AMOUNT).fill(null).map(createEmptyCard)],
+  history: [Array(getCardAmount()).fill(null).map(createEmptyCard)],
   markedCards: new Set<number>(),
 };
 

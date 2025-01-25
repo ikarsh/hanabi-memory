@@ -30,7 +30,12 @@ export type GameAction =
   | { type: 'UNDO' };
 
 // Constants
-export const CARD_AMOUNT = 4;
+
+const STORAGE_KEY = 'hanabi-cards-amount';
+export const getCardAmount = () => Number(localStorage.getItem(STORAGE_KEY) ?? 4);
+export const setCardAmount = (n: number) => localStorage.setItem(STORAGE_KEY, String(n));
+
+
 export const SLIDE_DIRECTION: Direction = 'left';
 export const DEFAULT_COLOR = '#d3d3d3';
 export const IMPOSSIBLE_SYMBOL = '✕';

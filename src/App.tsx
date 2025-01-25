@@ -1,7 +1,40 @@
 import React, { useReducer } from 'react';
 import { gameReducer, initialState } from './gameReducer';
-import { CompleteGameState, GameAction, COLOR_MAP, DEFAULT_COLOR, CARD_NUMBERS, CARD_COLORS, IMPOSSIBLE_SYMBOL, Card, CardColor, CardNumber, numberToIndex } from './types';
+import { CompleteGameState, GameAction, COLOR_MAP, DEFAULT_COLOR, CARD_NUMBERS, CARD_COLORS, IMPOSSIBLE_SYMBOL, Card, CardColor, CardNumber, numberToIndex, setCardAmount } from './types';
 import './App.css';
+
+const SettingsButton = () => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <>
+      <button 
+        className="settings-button" 
+        onClick={() => setIsOpen(true)}
+      >
+        ⚙️
+      </button>
+      {isOpen && (
+        <div className="settings-overlay" onClick={() => setIsOpen(false)}>
+          <div className="settings-content" onClick={e => e.stopPropagation()}>
+            {[3,4,5].map(n => (
+              <button 
+                key={n}
+                onClick={() => {
+                  setCardAmount(n);
+                  window.location.reload();
+                }}
+              >
+                {n} Cards
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 
 
 function getKnownValue<T>(possibilities: boolean[], values: T[]): T | null {
@@ -82,10 +115,11 @@ function App() {
       <button 
         className="undo-button" 
         onClick={() => dispatch({ type: 'UNDO' })} 
-        disabled={state.history.length === 0 || state.markedCards.size > 0}
+        disabled={state.history.length === 1 || state.markedCards.size > 0}
       >
         ↺ Undo
       </button>
+      <SettingsButton />
       {state.markedCards.size > 0 && (
         <div className="hint-tables">
           <div className="hint-table">
