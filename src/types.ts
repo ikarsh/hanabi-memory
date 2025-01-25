@@ -35,7 +35,7 @@ export const SLIDE_DIRECTION: Direction = 'left';
 export const DEFAULT_COLOR = '#d3d3d3';
 export const IMPOSSIBLE_SYMBOL = '✕';
 export const COLOR_MAP: Readonly<Record<CardColor, string>> = {
-  blue: '#3333ff', // 0000ff
+  blue: '#6699ff', // '#3333ff', // 0000ff
   yellow: '#ffff00',
   green: '#00ff00',
   white: '#ffffff',
