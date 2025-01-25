@@ -42,6 +42,27 @@ function getKnownValue<T>(possibilities: boolean[], values: T[]): T | null {
     x && possibilities.every((y, j) => i === j || !y));
   return idx === -1 ? null : values[idx];
 }
+
+function isPossibleHint<T>(possibilities: boolean[][], marked: Set<number>, idx: number, values: T[]): boolean {
+  let res = true;
+
+  for (let i = 0; i < possibilities.length; i++) {
+
+    if (marked.has(i)) {
+      if (!possibilities[i][idx]) {
+        res = false;
+        break;
+      }
+    } else {
+      if (getKnownValue(possibilities[i], values) === values[idx]) {
+        res = false;
+        break;
+      }
+    }
+  }
+  return res;
+}
+
 const ReactCard: React.FC<{
   index: number,
   knownColor: CardColor | null,
@@ -96,7 +117,6 @@ const ReactCard: React.FC<{
 )
 
 
-
 function App() {
   const [state, dispatch] = useReducer<React.Reducer<CompleteGameState, GameAction>>(
     gameReducer, 
@@ -124,39 +144,48 @@ function App() {
         <div className="hint-tables">
           <div className="hint-table">
             <div className="grid">
-              {CARD_NUMBERS.map((n, i) => {
-                const impossible = Array.from(state.markedCards).some(idx => {
-                  const card = state.history.at(-1)![idx];
-                  return card.numberPossibilities[i] === false;
-                });
-                return (
-                  <div 
-                    key={n}
-                    onClick={() => !impossible && dispatch({ type: 'SUBMIT_NUMBER', payload: n })}
-                    className={impossible ? 'impossible' : ''}
-                  >
-                    {impossible ? IMPOSSIBLE_SYMBOL : n}
-                  </div>
-                );
-              })}
+              {
+              
+                CARD_NUMBERS.map((n, i) => {
+                  const possible = isPossibleHint(
+                    state.history.at(-1)!.map(card => card.numberPossibilities),
+                    state.markedCards,
+                    i,
+                    CARD_NUMBERS
+                  )
+                  return (
+                    <div 
+                      key={n}
+                      onClick={() => possible && dispatch({ type: 'SUBMIT_NUMBER', payload: n })}
+                      className={possible ? '' : 'impossible'}
+                    >
+                      {possible ? n : IMPOSSIBLE_SYMBOL}
+                    </div>
+                  );
+
+                })
+
+              }
             </div>
           </div>
           <div className="hint-table">
             <h3>Select color:</h3>
             <div className="grid">
               {CARD_COLORS.map((c, i) => {
-                const impossible = Array.from(state.markedCards).some(idx => {
-                  const card = state.history.at(-1)![idx];
-                  return card.colorPossibilities[i] === false;
-                });
+                const possible = isPossibleHint(
+                  state.history.at(-1)!.map(card => card.colorPossibilities),
+                  state.markedCards,
+                  i,
+                  CARD_COLORS
+                );
                 return (
                   <div
                     key={c}
-                    onClick={() => !impossible && dispatch({ type: 'SUBMIT_COLOR', payload: c })}
+                    onClick={() => possible && dispatch({ type: 'SUBMIT_COLOR', payload: c })}
                     style={{ backgroundColor: COLOR_MAP[c] }}
-                    className={impossible ? 'impossible' : ''}
+                    className={possible ? '' : 'impossible'}
                   >
-                    {impossible ? IMPOSSIBLE_SYMBOL : null}
+                    {possible ? null: IMPOSSIBLE_SYMBOL}
                   </div>
                 );
               })}
