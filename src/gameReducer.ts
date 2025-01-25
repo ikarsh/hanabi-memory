@@ -1,4 +1,4 @@
-import { Card, CardNumber, CardColor, CompleteGameState, GameAction, CARD_NUMBERS, CARD_COLORS, SLIDE_DIRECTION, numberToIndex, colorToIndex, getCardAmount } from './types';
+import { Card, CardNumber, CardColor, CompleteGameState, GameAction, CARD_NUMBERS, CARD_COLORS, numberToIndex, colorToIndex, getCardAmount, getSlideDirection } from './types';
 
 const createEmptyCard = (): Card => ({
   id: Math.random().toString(36).substring(7),
@@ -70,11 +70,11 @@ export function gameReducer(state: CompleteGameState, action: GameAction): Compl
       let cards: Card[] = structuredClone(state.history.at(-1)!);
       cards = cards.filter((_, i) => i !== action.payload);
 
-      if (SLIDE_DIRECTION === 'left') {
-        cards.push(createEmptyCard());
-      } else {
-        cards.unshift(createEmptyCard());
-      }
+      // if (getSlideDirection() === 'left') {
+      cards.push(createEmptyCard());
+      // } else {
+        // cards.unshift(createEmptyCard());
+      // }
 
       return {
         history: [...state.history, cards],

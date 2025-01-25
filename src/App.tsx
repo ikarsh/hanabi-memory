@@ -1,22 +1,69 @@
 import React, { useReducer } from 'react';
 import { gameReducer, initialState } from './gameReducer';
-import { CompleteGameState, GameAction, COLOR_MAP, DEFAULT_COLOR, CARD_NUMBERS, CARD_COLORS, IMPOSSIBLE_SYMBOL, Card, CardColor, CardNumber, numberToIndex, setCardAmount } from './types';
+import { 
+  CompleteGameState, 
+  GameAction, 
+  COLOR_MAP, 
+  DEFAULT_COLOR, 
+  CARD_NUMBERS, 
+  CARD_COLORS, 
+  IMPOSSIBLE_SYMBOL, 
+  CardColor, 
+  CardNumber,
+  Direction,
+  getCardAmount,
+  setCardAmount,
+  getSlideDirection,
+  setSlideDirection
+} from './types';
 import './App.css';
 
-const SettingsButton = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
+function getKnownValue<T>(possibilities: boolean[], values: T[]): T | null {
+  const idx = possibilities.findIndex((x, i) => 
+    x && possibilities.every((y, j) => i === j || !y));
+  return idx === -1 ? null : values[idx];
+}
 
+function isPossibleHint<T>(possibilities: boolean[][], marked: Set<number>, idx: number, values: T[]): boolean {
+  let res = true;
+  for (let i = 0; i < possibilities.length; i++) {
+    if (marked.has(i)) {
+      if (!possibilities[i][idx]) {
+        res = false;
+        break;
+      }
+    } else {
+      if (getKnownValue(possibilities[i], values) === values[idx]) {
+        res = false;
+        break;
+      }
+    }
+  }
+  return res;
+}
+
+const SettingsButton: React.FC<{
+  direction: Direction,
+  onDirectionChange: (d: Direction) => void
+}> = ({direction, onDirectionChange}) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  
   return (
     <>
-      <button 
-        className="settings-button" 
-        onClick={() => setIsOpen(true)}
-      >
+      <button className="settings-button" onClick={() => setIsOpen(true)}>
         ⚙️
       </button>
       {isOpen && (
         <div className="settings-overlay" onClick={() => setIsOpen(false)}>
           <div className="settings-content" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => {
+                onDirectionChange(direction === 'left' ? 'right' : 'left');
+              }}
+            >
+              {direction === 'left' ? '→' : '←'} Change Direction
+            </button>
+            <div style={{height: 1, background: '#ccc'}} />
             {[3,4,5].map(n => (
               <button 
                 key={n}
@@ -34,34 +81,6 @@ const SettingsButton = () => {
     </>
   );
 };
-
-
-
-function getKnownValue<T>(possibilities: boolean[], values: T[]): T | null {
-  const idx = possibilities.findIndex((x, i) => 
-    x && possibilities.every((y, j) => i === j || !y));
-  return idx === -1 ? null : values[idx];
-}
-
-function isPossibleHint<T>(possibilities: boolean[][], marked: Set<number>, idx: number, values: T[]): boolean {
-  let res = true;
-
-  for (let i = 0; i < possibilities.length; i++) {
-
-    if (marked.has(i)) {
-      if (!possibilities[i][idx]) {
-        res = false;
-        break;
-      }
-    } else {
-      if (getKnownValue(possibilities[i], values) === values[idx]) {
-        res = false;
-        break;
-      }
-    }
-  }
-  return res;
-}
 
 const ReactCard: React.FC<{
   index: number,
@@ -114,24 +133,31 @@ const ReactCard: React.FC<{
       </div>
     </div>
   </div>
-)
-
+);
 
 function App() {
   const [state, dispatch] = useReducer<React.Reducer<CompleteGameState, GameAction>>(
     gameReducer, 
     initialState
   );
+  const [direction, setDirection] = React.useState<Direction>(getSlideDirection());
 
   const onDiscard = (index: number) => {
     dispatch({ type: 'DISCARD_CARD', payload: index });
-    // setTimeout(() => {
-    //   dispatch({ type: 'FINISH_DISCARD', payload: index });
-    // }, 300);
   };
 
+  const handleDirectionChange = (newDirection: Direction) => {
+    setDirection(newDirection);
+    setSlideDirection(newDirection);
+  };
+
+  const displayCards = [...state.history.at(-1)!];
+  if (direction === 'right') {
+    displayCards.reverse();
+  }
+
   return (
-    <div className="game">
+    <div className="game" data-direction={direction}>
       <button 
         className="undo-button" 
         onClick={() => dispatch({ type: 'UNDO' })} 
@@ -139,33 +165,31 @@ function App() {
       >
         ↺ Undo
       </button>
-      <SettingsButton />
+      <SettingsButton 
+        direction={direction} 
+        onDirectionChange={handleDirectionChange} 
+      />
       {state.markedCards.size > 0 && (
         <div className="hint-tables">
           <div className="hint-table">
             <div className="grid">
-              {
-              
-                CARD_NUMBERS.map((n, i) => {
-                  const possible = isPossibleHint(
-                    state.history.at(-1)!.map(card => card.numberPossibilities),
-                    state.markedCards,
-                    i,
-                    CARD_NUMBERS
-                  )
-                  return (
-                    <div 
-                      key={n}
-                      onClick={() => possible && dispatch({ type: 'SUBMIT_NUMBER', payload: n })}
-                      className={possible ? '' : 'impossible'}
-                    >
-                      {possible ? n : IMPOSSIBLE_SYMBOL}
-                    </div>
-                  );
-
-                })
-
-              }
+              {CARD_NUMBERS.map((n, i) => {
+                const possible = isPossibleHint(
+                  state.history.at(-1)!.map(card => card.numberPossibilities),
+                  state.markedCards,
+                  i,
+                  CARD_NUMBERS
+                )
+                return (
+                  <div 
+                    key={n}
+                    onClick={() => possible && dispatch({ type: 'SUBMIT_NUMBER', payload: n })}
+                    className={possible ? '' : 'impossible'}
+                  >
+                    {possible ? n : IMPOSSIBLE_SYMBOL}
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div className="hint-table">
@@ -195,20 +219,26 @@ function App() {
       )}
       
       <div className="cards">
-        {state.history.at(-1)!.map((card, i) => (
-          <ReactCard
-            key={card.id}
-            index={i}
-            numberPossibilities={card.numberPossibilities}
-            colorPossibilities={card.colorPossibilities}
-            knownNumber={getKnownValue(card.numberPossibilities, CARD_NUMBERS)}
-            knownColor={getKnownValue(card.colorPossibilities, CARD_COLORS)}
-            isMarked={state.markedCards.has(i)}
-            onMark={() => dispatch({ type: 'MARK_CARD', payload: i })}
-            onDiscard={() => onDiscard(i)}
-            canDiscard={state.markedCards.size === 0}
-          />
-        ))}
+        {displayCards.map((card, displayIndex) => {
+          const stateIndex = direction === 'right' 
+            ? displayCards.length - 1 - displayIndex 
+            : displayIndex;
+          
+          return (
+            <ReactCard
+              key={card.id}
+              index={stateIndex}
+              numberPossibilities={card.numberPossibilities}
+              colorPossibilities={card.colorPossibilities}
+              knownNumber={getKnownValue(card.numberPossibilities, CARD_NUMBERS)}
+              knownColor={getKnownValue(card.colorPossibilities, CARD_COLORS)}
+              isMarked={state.markedCards.has(stateIndex)}
+              onMark={() => dispatch({ type: 'MARK_CARD', payload: stateIndex })}
+              onDiscard={() => onDiscard(stateIndex)}
+              canDiscard={state.markedCards.size === 0}
+            />
+          );
+        })}
       </div>
     </div>
   );

@@ -30,8 +30,8 @@ export type GameAction =
   | { type: 'UNDO' };
 
 // Constants
-export const DEFAULT_CARD_AMOUNT = 4;
-export const SLIDE_DIRECTION: Direction = 'left';
+const DEFAULT_CARD_AMOUNT = 4;
+const DEFAULT_SLIDE_DIRECTION: Direction = 'left';
 export const DEFAULT_COLOR = '#d3d3d3';
 export const IMPOSSIBLE_SYMBOL = '✕';
 export const COLOR_MAP: Readonly<Record<CardColor, string>> = {
@@ -45,3 +45,9 @@ export const COLOR_MAP: Readonly<Record<CardColor, string>> = {
 const STORAGE_KEY = 'hanabi-cards-amount';
 export const getCardAmount = () => Number(localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CARD_AMOUNT);
 export const setCardAmount = (n: number) => localStorage.setItem(STORAGE_KEY, String(n));
+
+const DIRECTION_STORAGE_KEY = 'hanabi-slide-direction';
+export const getSlideDirection = () => 
+  (localStorage.getItem(DIRECTION_STORAGE_KEY) ?? DEFAULT_SLIDE_DIRECTION) as Direction;
+export const setSlideDirection = (d: Direction) => 
+  localStorage.setItem(DIRECTION_STORAGE_KEY, d);
