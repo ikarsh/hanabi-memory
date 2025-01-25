@@ -43,6 +43,11 @@
   justify-content: center;
 }
 
+/* Flip number hints */
+.hint-table:first-child .grid {
+  transform: rotate(180deg);
+}
+
 .hint-table {
   padding: 5px;
 }
