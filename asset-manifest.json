@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/hanabi-memory/static/css/main.21b27afe.css",
-    "main.js": "/hanabi-memory/static/js/main.196cd258.js",
+    "main.js": "/hanabi-memory/static/js/main.e3ec0dcb.js",
     "static/js/453.239be743.chunk.js": "/hanabi-memory/static/js/453.239be743.chunk.js",
     "index.html": "/hanabi-memory/index.html",
     "main.21b27afe.css.map": "/hanabi-memory/static/css/main.21b27afe.css.map",
-    "main.196cd258.js.map": "/hanabi-memory/static/js/main.196cd258.js.map",
+    "main.e3ec0dcb.js.map": "/hanabi-memory/static/js/main.e3ec0dcb.js.map",
     "453.239be743.chunk.js.map": "/hanabi-memory/static/js/453.239be743.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.21b27afe.css",
-    "static/js/main.196cd258.js"
+    "static/js/main.e3ec0dcb.js"
   ]
 }
